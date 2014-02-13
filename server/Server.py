@@ -70,9 +70,6 @@ def load_map(filename):
     return (graph, position, street_names, cost_distance)
 
 def get_input(ser):
-    print('Type the start and end position as follows:')
-    print('-------START------ --------END-------')
-    print('Latitude Longitude Latitude Longitude')
     raw_input = ser.readline().decode('ASCII')
     values = [int(value) for value in raw_input.split()]
     start_pos, end_pos = (values[0],values[1]), (values[2],values[3])
