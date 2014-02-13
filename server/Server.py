@@ -119,9 +119,9 @@ def main():
             for el in path:
                 outp = str(position[el][0])+' '+str(position[el][1])
                 ser.write(outp.encode('ASCII'))
+                print(outp)
         else:
             print("Path not found. Please check that the points you specified are connected.")
-                
     
 
 if __name__ == '__main__':
