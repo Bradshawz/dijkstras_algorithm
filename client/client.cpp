@@ -228,16 +228,11 @@ void loop() {
     if (select_button_event) {
         // Button was pressed, we are selecting a point!
         // which press is this, the start or the stop selection?
-      if(request_state) {
-	start_lat = cursor_lat;
-	start_lon = cursor_lon;
-        request_state = 0;
-      }
-
-      else{
+      if (request_state) {
 	stop_lat = cursor_lat;
 	stop_lon = cursor_lon;
-	request_state = 1;
+        request_state = 0;
+	// Send the request to the server and wait for a response
 	Serial.print(start_lat);
 	Serial.print(" ");
 	Serial.print(start_lon);
@@ -245,13 +240,63 @@ void loop() {
 	Serial.print(stop_lat);
 	Serial.print(" ");
 	Serial.println(stop_lon);
-	delay(500);
-      }
+	
+	// Wait for a response and get the reply
+	// Read the number of vertices in the path
+	char *line = (char*) malloc(32*sizeof(char));
+	serial_readline(line, 32); // max 32 characters to read
+	int32_t num_lines = string_get_int(line);
 
-        // If we are making a request to find a shortest path, we will send out
-        // the request on the serial port and then wait for a response from the
-        // server.  While this is happening, the client user interface is
-        // suspended.
+	// Read each line into an array of latlon pairs
+	char *lon_str = (char*) malloc(16*sizeof(char));
+	char *lat_str = (char*) malloc(16*sizeof(char));
+	int32_t lat = 0;
+	int32_t lon = 0;
+	int32_t x_screen_last = 0;
+	int32_t y_screen_last = 0;
+	for (int i=0; i < num_lines; i++) {
+	  serial_readline(line, 32);
+	  // Read latitude
+	  const char* space = " ";
+	  uint16_t lon_spot = string_read_field(line, 0, lat_str, 16, space);
+	  // Read longitude
+	  string_read_field(line, lon_spot, lon_str, 16, space);
+
+	  // Convert both strings to ints
+	  lon = string_get_int(lon_str);
+	  lat = string_get_int(lat_str);
+	  
+	  // Convert lat/lon into x/y
+	  int32_t x = longitude_to_x(current_map_num, lon);
+	  int32_t y = latitude_to_y(current_map_num, lat);
+
+	  // get screen coordinates of this point
+	  int32_t x_screen = x - screen_map_x;
+	  int32_t y_screen = y - screen_map_y;
+	  
+	  // If this is not the first point, draw the edge between this and
+	  // the previous point.
+	  if (i > 0) {    
+	    // draw a line connecting the two points
+	    tft.drawLine(x_screen_last, y_screen_last,
+			 x_screen, y_screen,
+			 ST7735_MAGENTA);
+	  }
+
+	  // Store this x_screen/y_screen as the last_x_screen/last_y_screen
+	  x_screen_last = x_screen;
+	  y_screen_last = y_screen;
+	}
+
+	free(line);
+	free(lon_str);
+	free(lat_str);
+      } else {
+	start_lat = cursor_lat;
+	start_lon = cursor_lon;
+	request_state = 1;
+	
+      }
 
         // if the stop point, then we send out the server request and wait.
 

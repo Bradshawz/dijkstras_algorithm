@@ -115,11 +115,12 @@ def main():
         dbprint(['path:', path])
         
         if len(path):
-            ser.write(str(print(len(path))).encode('ASCII'))
+            msg = str(len(path)) + '\n'
+            ser.write(msg.encode('ASCII'))
             for el in path:
-                outp = str(position[el][0])+' '+str(position[el][1])
+                outp = str(position[el][0])+' '+str(position[el][1]) + '\n'
                 ser.write(outp.encode('ASCII'))
-                print(outp)
+                
         else:
             print("Path not found. Please check that the points you specified are connected.")
     
