@@ -8,7 +8,7 @@
 
 // #define DEBUG_SCROLLING
 //#define DEBUG_PATH
-#define DEBUG_MEMORY
+#define DEBUG_MEMORY 0
 
 // Pins and interrupt lines for the zoom in and out buttons.
 const uint8_t zoom_in_interrupt = 1;     // Digital pin 3.
@@ -21,7 +21,7 @@ const uint8_t zoom_out_pin = 2;
 const uint8_t sd_cs = 5;
 const uint8_t tft_cs = 6;
 const uint8_t tft_dc = 7;
-const uint8_t tft_rst = 8;    
+const uint8_t tft_rst = 8;
 
 // Arduino analog input pin for the horizontal on the joystick.
 const uint8_t joy_pin_x = 1;
@@ -55,7 +55,7 @@ uint8_t first_time;
 
 void setup() {
     Serial.begin(9600);
-    Serial.println("Starting...");
+    // Serial.println("Starting...");
     Serial.flush();    // There can be nasty leftover bits.
 
     initialize_screen();
@@ -91,8 +91,8 @@ void setup() {
     attachInterrupt(zoom_out_interrupt, handle_zoom_out, FALLING);
 
     #ifdef DEBUG_MEMORY
-        Serial.print("Available mem:");
-        Serial.println(AVAIL_MEM);
+    // Serial.print("Available mem:");
+    // Serial.println(AVAIL_MEM);
     #endif
 }
 
@@ -104,7 +104,6 @@ const uint16_t screen_bottom_margin = 117;
 
 // the path request, start and stop lat and lon
 uint8_t request_state = 0;  // 0 - wait for start, 1 - wait for stop point
-uint8_t first_push = 1;
 int32_t start_lat;
 int32_t start_lon;
 int32_t stop_lat;
@@ -119,7 +118,7 @@ void loop() {
     if ( first_time ) {
         first_time = 0;
         update_display_window = 1;
-        }
+    }
 
     // Joystick displacement.
     int16_t dx = 0;
@@ -229,16 +228,16 @@ void loop() {
     if (select_button_event) {
         // Button was pressed, we are selecting a point!
         // which press is this, the start or the stop selection?
-      if(first_push) {
+      if(request_state) {
 	start_lat = cursor_lat;
 	start_lon = cursor_lon;
-	first_push = 0;
+        request_state = 0;
       }
 
       else{
 	stop_lat = cursor_lat;
 	stop_lon = cursor_lon;
-	first_push = 1;
+	request_state = 1;
 	Serial.print(start_lat);
 	Serial.print(" ");
 	Serial.print(start_lon);
@@ -259,7 +258,7 @@ void loop() {
 		// This is a place holder for the code you need to write. This simply
 		
 
-        } // end of select_button_event processing
+    } // end of select_button_event processing
 
     // do we have to redraw the map tile?  
     if (update_display_window) {
@@ -280,7 +279,7 @@ void loop() {
 
         // force a redisplay of status message
         clear_status_msg();
-        }
+    }
 
     // always update the status message area if message changes
     // Indicate which point we are waiting for
