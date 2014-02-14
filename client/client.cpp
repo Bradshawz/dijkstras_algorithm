@@ -229,17 +229,18 @@ void loop() {
 
     // at this point the screen is updated, with a new tile window and
     // cursor position if necessary
-
     // will only be down once, then waits for a min time before allowing
     // pres again.
+
     if (select_button_event) {
         // Button was pressed, we are selecting a point!
         // which press is this, the start or the stop selection?
-      if (request_state) {
+        if (request_state) {
 	stop_lat = cursor_lat;
 	stop_lon = cursor_lon;
         request_state = 0;
-	
+	draw_map_screen();
+        draw_cursor();
 	// Send the request to the server and wait for a response
 	Serial.print(start_lat);
 	Serial.print(" ");
@@ -256,10 +257,11 @@ void loop() {
 	num_vertices = string_get_int(line);
 
 	if (path_found) {
-	  // path has already been drawn once, so free these arrays so we
-	  // can reallocate them
-	  free(lon_arr);
-	  free(lat_arr);
+	    // undraw old path before freeing arrays
+	    // path has already been drawn once, so free these arrays so we
+	    // can reallocate them
+	    free(lon_arr);
+	    free(lat_arr);
 	}	
 	// Initialize the vars used for draw_path()
 	lon_arr = (int32_t *) malloc(num_vertices * sizeof(int32_t));
@@ -271,20 +273,20 @@ void loop() {
 
 	// Read latlon pairs and store them
 	for (int i=0; i < num_vertices; i++) {
-	  serial_readline(line, 32);
+	    serial_readline(line, 32);
 
-	  // Read latitude
-	  const char* space = " ";
-	  uint16_t lon_spot = string_read_field(line, 0, lat_str, 16, space);
-	  // Read longitude
-	  string_read_field(line, lon_spot, lon_str, 16, space);
+	    // Read latitude
+	    const char* space = " ";
+	    uint16_t lon_spot = string_read_field(line, 0, lat_str, 16, space);
+	    // Read longitude
+	    string_read_field(line, lon_spot, lon_str, 16, space);
 
-	  // Convert both strings to ints and store them in the lat/lon arrays
-	  lon_arr[i] = string_get_int(lon_str);
-	  lat_arr[i] = string_get_int(lat_str);
+	    // Convert both strings to ints and store them in the lat/lon arrays
+	    lon_arr[i] = string_get_int(lon_str);
+	    lat_arr[i] = string_get_int(lat_str);
 	}
-	path_found = true;
-	draw_path();
+ 	path_found = true;
+  	draw_path();
 
 	free(line);
 	free(lon_str);
@@ -293,7 +295,7 @@ void loop() {
 	start_lat = cursor_lat;
 	start_lon = cursor_lon;
 	request_state = 1;
-      }
+        }
 
     } // end of select_button_event processing
 
@@ -313,8 +315,9 @@ void loop() {
         draw_cursor();
 
         // Need to redraw any other things that are on the screen. Hint: Path
-	draw_path();
-
+	if (path_found){
+	  draw_path();
+	}
         // force a redisplay of status message
         clear_status_msg();
     }
@@ -523,18 +526,20 @@ void handle_zoom_out() {
 
 
 void draw_path() {
-  if (path_found) {
-    for (int i=1; i < num_vertices; i++) {
-      // Convert lat/lon into x/y and draw them
-      int32_t x1 = longitude_to_x(current_map_num, lon_arr[i-1]) - screen_map_x;
-      int32_t y1 = latitude_to_y(current_map_num, lat_arr[i-1]) - screen_map_y;
+    if (path_found) {
+      for (int i=1; i < num_vertices; i++) {
+          // Convert lat/lon into x/y and draw them
+          int32_t x1 = longitude_to_x(current_map_num, lon_arr[i-1]) - screen_map_x;
+          int32_t y1 = latitude_to_y(current_map_num, lat_arr[i-1]) - screen_map_y;
 
-      int32_t x2 = longitude_to_x(current_map_num, lon_arr[i]) - screen_map_x;
-      int32_t y2 = latitude_to_y(current_map_num, lat_arr[i]) - screen_map_y;
+          int32_t x2 = longitude_to_x(current_map_num, lon_arr[i]) - screen_map_x;
+          int32_t y2 = latitude_to_y(current_map_num, lat_arr[i]) - screen_map_y;
       
-      tft.drawLine(x1, y1,
-		   x2, y2,
-		   ST7735_MAGENTA);
+          tft.drawLine(x1, y1,
+		       x2, y2,
+		       ST7735_MAGENTA);
+      }
     }
-  }
 }
+
+
