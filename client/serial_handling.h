@@ -5,7 +5,7 @@
 
 /*
     Function to read a single line from the serial buffer up to a specified
-  length (length includes the null termination character that must be
+   length (length includes the null termination character that must be
   appended onto the string).  This function is blocking. The newline
   character sequence is given by CRLF, or "\r\n".
 

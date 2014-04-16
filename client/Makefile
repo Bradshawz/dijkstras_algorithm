@@ -1,5 +1,5 @@
-# Template makefile for arduino-ua toolchain
-# Version 2.0 - 2012-11-07
+ # Template makefile for arduino-ua toolchain
+ # Version 2.0 - 2012-11-07
 
 # Remember to `make clean` before `make upload to a different board type 
 # Actually, when you resume development its a good idea to start with a

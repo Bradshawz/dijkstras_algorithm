@@ -7,8 +7,8 @@
 // #define DEBUG
 
 /*
-    Module to handle the display of map, cursor, and path information
-    on the screen.
+     Module to handle the display of map, cursor, and path information
+     on the screen.
 
     It assumes that all of the map information has been placed on the
     SD card as .lcd 16 bit rgb files, and that the tile dimensions

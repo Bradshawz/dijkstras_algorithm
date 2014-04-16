@@ -1,5 +1,5 @@
 /*
- Definition of functions and structures for dealing with the map.
+  Definition of functions and structures for dealing with the map.
  Longitude and latitude to screen coordinate conversions, for instance.
  */
 
