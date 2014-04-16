@@ -1,7 +1,7 @@
 from collections import deque
 
 """
-Graph module for directed graph.
+ Graph module for directed graph.
 
 Includes the functions implemented in the Jan 21/22
 lectures with one key difference.
