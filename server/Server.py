@@ -1,10 +1,6 @@
 '''
-CMPUT 275 Assignment 3 Part 1: Map Server
-
 Ross Anderson
 Andrew Bradshaw
-
-Lec EB1
 '''
 
 from Graph import Graph, least_cost_path
